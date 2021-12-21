@@ -5,6 +5,7 @@ import azure.cognitiveservices.speech as speechsdk
 from azure.cognitiveservices.speech import AudioDataStream, SpeechSynthesisOutputFormat
 import voice_data as vd
 import re
+import asyncio
 
 # Azure_TTS
 # Creates an instance of a speech config with specified subscription key and service region.
@@ -239,11 +240,41 @@ async def on_message(message: discord.Message):
             # Get user voice data
             user_voice_data = voice_module.get_user_data(str(message.author.id))
             default_voice_data = voice_module.get_user_data("default")
+            # Check language key
+            text_split_list = text.split()
+            text_language_key = text.split()[0]
+            has_language_key = True
+            if len(text_split_list) > 1:
+                # Has language key, user profile
+                if text_language_key in user_voice_data.voice_setting:
+                    language = user_voice_data.voice_setting[text_language_key].locale
+                    voice_name = user_voice_data.voice_setting[text_language_key].short_name
+                    text = " ".join(text.split()[1:])
+                # Has language key, no user profile
+                elif text_language_key in default_voice_data.voice_setting:
+                    language = default_voice_data.voice_setting[text_language_key].locale
+                    voice_name = default_voice_data.voice_setting[text_language_key].short_name
+                    text = " ".join(text.split()[1:])
+                # No language key
+                else:
+                    has_language_key = False
+            if not has_language_key or not len(text_split_list) > 1:
+                text_language_key = "default"
+                # Has user default profile
+                if text_language_key in user_voice_data.voice_setting:
+                    language = user_voice_data.voice_setting[text_language_key].locale
+                    voice_name = user_voice_data.voice_setting[text_language_key].short_name
+                # No user default profile
+                elif text_language_key in default_voice_data.voice_setting:
+                    language = default_voice_data.voice_setting[text_language_key].locale
+                    voice_name = default_voice_data.voice_setting[text_language_key].short_name
 
             # Check language key
             text_split_list = text.split()
             # Set language key
-            if len(text_split_list) > 1:
+            if len(text_split_list) > 1 \
+                    and (text.split()[0] in user_voice_data.voice_setting
+                         or text.split()[0] in default_voice_data.voice_setting):
                 text_language_key = text.split()[0]
                 text = " ".join(text.split()[1:])
             else:
@@ -252,9 +283,11 @@ async def on_message(message: discord.Message):
             if text_language_key in user_voice_data.voice_setting:
                 language = user_voice_data.voice_setting[text_language_key].locale
                 voice_name = user_voice_data.voice_setting[text_language_key].short_name
-            else:
+            elif text_language_key in default_voice_data.voice_setting:
                 language = default_voice_data.voice_setting[text_language_key].locale
                 voice_name = default_voice_data.voice_setting[text_language_key].short_name
+            else:
+                text = text_language_key + " " + text
 
             # Create audio file path
             audio_file_path = f"AudioFile/{voice_name}/{text}.ogg"
@@ -302,7 +335,7 @@ async def on_message(message: discord.Message):
             # audio_source = discord.FFmpegPCMAudio(source=audio_file_path)
 
             while bot_voice_client.is_playing():
-                bot.sleep(.1)
+                await asyncio.sleep(1)
             bot_voice_client.play(audio_source)
 
             # Send discord message
