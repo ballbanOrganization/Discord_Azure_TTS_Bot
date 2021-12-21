@@ -21,20 +21,6 @@ bot = commands.Bot(command_prefix='!')
 voice_module = vd.VoiceModule()
 voice_list = vd.get_voice_list_from_local()
 
-# user_voice_data = voice_module.get_user_data("default")
-# print(user_voice_data.voice_setting)
-# # user_voice_data.voice_setting["en"] = voice_module.search("en-US-JennyNeural").pop()
-# # user_voice_data.voice_setting["jp"] = voice_module.search("ja-JP-KeitaNeural").pop()
-# # user_voice_data.voice_setting["kr"] = voice_module.search("ko-KR-SunHiNeural").pop()
-# # user_voice_data.voice_setting["tw"] = voice_module.search("zh-TW-HsiaoChenNeural").pop()
-# # user_voice_data.voice_setting["hk"] = voice_module.search("zh-HK-WanLungNeural").pop()
-# user_voice_data.voice_setting["default"] = voice_module.search("zh-CN-XiaoxiaoNeural").pop()
-# print(user_voice_data.voice_setting)
-# voice_module.save_user_data(user_voice_data)
-
-# for x in voice_module.search("chinese"):
-#     print(x.short_name)
-
 
 @bot.command()
 async def h(ctx):
@@ -240,6 +226,7 @@ async def on_message(message: discord.Message):
             # Get user voice data
             user_voice_data = voice_module.get_user_data(str(message.author.id))
             default_voice_data = voice_module.get_user_data("default")
+
             # Check language key
             text_split_list = text.split()
             text_language_key = text.split()[0]
@@ -268,26 +255,6 @@ async def on_message(message: discord.Message):
                 elif text_language_key in default_voice_data.voice_setting:
                     language = default_voice_data.voice_setting[text_language_key].locale
                     voice_name = default_voice_data.voice_setting[text_language_key].short_name
-
-            # Check language key
-            text_split_list = text.split()
-            # Set language key
-            if len(text_split_list) > 1 \
-                    and (text.split()[0] in user_voice_data.voice_setting
-                         or text.split()[0] in default_voice_data.voice_setting):
-                text_language_key = text.split()[0]
-                text = " ".join(text.split()[1:])
-            else:
-                text_language_key = "default"
-            # Set language and voice_name
-            if text_language_key in user_voice_data.voice_setting:
-                language = user_voice_data.voice_setting[text_language_key].locale
-                voice_name = user_voice_data.voice_setting[text_language_key].short_name
-            elif text_language_key in default_voice_data.voice_setting:
-                language = default_voice_data.voice_setting[text_language_key].locale
-                voice_name = default_voice_data.voice_setting[text_language_key].short_name
-            else:
-                text = text_language_key + " " + text
 
             # Create audio file path
             audio_file_path = f"AudioFile/{voice_name}/{text}.ogg"
