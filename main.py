@@ -6,10 +6,15 @@ from azure.cognitiveservices.speech import AudioDataStream, SpeechSynthesisOutpu
 import voice_data as vd
 import re
 import asyncio
+import yaml
+
+# Load config
+with open('config.yml', 'r') as yml:
+    config = yaml.safe_load(yml)
 
 # Azure_TTS
 # Creates an instance of a speech config with specified subscription key and service region.
-AZURE_TTS_TOKEN = os.environ['AZURE_TTS_TOKEN']
+AZURE_TTS_TOKEN = config['AZURE_TTS_TOKEN']
 speech_key, service_region = AZURE_TTS_TOKEN, "japaneast"
 speech_config = speechsdk.SpeechConfig(subscription=speech_key, region=service_region)
 
@@ -23,7 +28,7 @@ voice_list = vd.get_voice_list_from_local()
 
 
 @bot.command()
-async def h(ctx):
+async def atb_help(ctx):
     default_voice_data = voice_module.get_user_data("default")
     default_voice_message = "\nHere is default voice setting:"
     for (key, value) in default_voice_data.voice_setting.items():
@@ -197,6 +202,7 @@ async def delete_profile(ctx):
 @bot.event
 async def on_ready():
     print(f"We have logged in as {bot.user}")
+    await bot.change_presence(activity=discord.Game(name="!atb_help"))
 
 
 @bot.event
@@ -302,7 +308,7 @@ async def on_message(message: discord.Message):
             # audio_source = discord.FFmpegPCMAudio(source=audio_file_path)
 
             while bot_voice_client.is_playing():
-                await asyncio.sleep(1)
+                await asyncio.sleep(0.5)
             bot_voice_client.play(audio_source)
 
             # Send discord message
@@ -335,5 +341,5 @@ async def join(ctx):
     return bot_voice_client
 
 
-BOT_TOKEN = os.environ['BOT_TOKEN']
+BOT_TOKEN = config['BOT_TOKEN']
 bot.run(BOT_TOKEN)
