@@ -7,6 +7,16 @@ import voice_data as vd
 import re
 import asyncio
 import yaml
+import langid
+
+IOS_639_1_MAPPING_LIST = {
+    "zh": "zh",
+    "ja": "jp",
+    "ko": "kr",
+    "en": "default",
+    "fr": "fr",
+    "th": "th"
+}
 
 # Load config
 with open('config.yml', 'r') as yml:
@@ -32,22 +42,23 @@ async def atb_help(ctx):
     default_voice_data = voice_module.get_user_data("default")
     default_voice_message = "\nHere is default voice setting:"
     for (key, value) in default_voice_data.voice_setting.items():
-        default_voice_message += f"\n       {key} : {value.short_name}"
+        default_voice_message += f"\n       auto-{key} : {value.short_name}"
 
     string = "How to use this bot:" \
-             "\n        Type __`你好__ or __'en Hello__" \
-             "\n        Use symbol __`(language key) (text)__" \
+             "\n        Type __`你好__ or __'Hello__" \
+             "\n        Use symbol __`(text)__" \
+             "\n        Bot will identify language automatically" \
              + default_voice_message + \
              "\n" \
              "\nYou can setup your own voice setting." \
-             "\nUse command __!set_voice (custom_key) (voice_name)__" \
-             "\n                        __!set_default_voice (voice_name)__" \
-             "\nAnd __!search (key1) (key2)__ to search usable voice name" \
+             "\nUse command __!search (key1) (key2)__ to search usable voice name" \
+             "\nAnd use __!set_voice (custom_key) (voice_name)__" \
+             "\n           Or __!set_voice (default_voice_key) (voice_name)__" \
              "\nExample:" \
-             "\n        First, search for a voice __!search korean__" \
-             "\n        Then, !set_voice ko ko-KR-SunHiNeural" \
-             "\n                !set_default_voice en-GB-LibbyNeural" \
-             "\n        And you can use those voices by tying __`ko 안녕__ or __`hello__" \
+             "\n!set_voice auto-en en-GB-LibbyNeural" \
+             "\nThis command will make auto detected English message play with this voice." \
+             "\n!set_voice test ko-KR-InJoonNeural" \
+             "\n        And you can use [ko-KR-InJoonNeural] voices by tying __`test 안녕__" \
              "\nVisit here to hear sample audio:" \
              "\nhttps://azure.microsoft.com/en-us/services/cognitive-services/text-to-speech/#features" \
              "\n" \
@@ -130,7 +141,8 @@ async def set_voice(ctx, key, voice_name):
     else:
         await ctx.send(f"Wrong voice name! : {voice_name}\n"
                        f"Use !search or visit\n"
-                       f"https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/language-support#prebuilt-neural-voices"
+                       f"https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/"
+                       f"language-support#prebuilt-neural-voices\n"
                        f"to get correct voice name!")
 
 
@@ -225,7 +237,7 @@ async def on_message(message: discord.Message):
             return
 
         # Replace invalid symbol
-        text = re.sub('[<>/|":*]', ' ', message.content[1:])
+        text = re.sub('[<>/|":*\n]', ' ', message.content[1:])
         text = text.replace("\\", " ")
 
         if len(text) > 0:
@@ -252,15 +264,23 @@ async def on_message(message: discord.Message):
                 else:
                     has_language_key = False
             if not has_language_key or not len(text_split_list) > 1:
-                text_language_key = "default"
-                # Has user default profile
-                if text_language_key in user_voice_data.voice_setting:
-                    language = user_voice_data.voice_setting[text_language_key].locale
-                    voice_name = user_voice_data.voice_setting[text_language_key].short_name
-                # No user default profile
-                elif text_language_key in default_voice_data.voice_setting:
+                # Language identify
+                language_code = langid.classify(text)[0]
+
+                # Has auto detected user profile
+                if 'auto-' + language_code in user_voice_data.voice_setting:
+                    language = user_voice_data.voice_setting['auto-' + language_code].locale
+                    voice_name = user_voice_data.voice_setting['auto-' + language_code].short_name
+                # No user profile but in mapping list
+                elif language_code in IOS_639_1_MAPPING_LIST:
+                    text_language_key = IOS_639_1_MAPPING_LIST[language_code]
                     language = default_voice_data.voice_setting[text_language_key].locale
                     voice_name = default_voice_data.voice_setting[text_language_key].short_name
+                else:
+                    language = default_voice_data.voice_setting["default"].locale
+                    voice_name = default_voice_data.voice_setting["default"].short_name
+
+                print(f"Detected language: {language_code} \nVoice name       : {voice_name}")
 
             # Create audio file path
             audio_file_path = f"AudioFile/{voice_name}/{text}.ogg"
@@ -288,6 +308,10 @@ async def on_message(message: discord.Message):
                         if cancellation_details.error_details:
                             print("Error details: {}".format(cancellation_details.error_details))
                     print("Did you update the subscription info?")
+                    return
+
+                # If audio data doesn't exist, return
+                if len(result.audio_data) < 1:
                     return
 
                 # Change <?> to ASCII before save
