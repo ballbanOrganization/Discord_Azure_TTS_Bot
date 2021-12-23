@@ -147,7 +147,10 @@ class VoiceModule:
         :param user_model: User model
         :return: nothing
         """
-        self.user_data_list[str(user_model.user_id)].update(user_model.to_json())
+        if str(user_model.user_id) in self.user_data_list:
+            self.user_data_list[str(user_model.user_id)].update(user_model.to_json())
+        else:
+            self.user_data_list[str(user_model.user_id)] = user_model.to_json()
         with open(USER_DATA_PATH, "w") as file:
             json.dump(self.user_data_list, file, indent=4)
 

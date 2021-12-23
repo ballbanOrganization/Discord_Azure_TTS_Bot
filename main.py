@@ -288,6 +288,7 @@ async def on_message(message: discord.Message):
                         if cancellation_details.error_details:
                             print("Error details: {}".format(cancellation_details.error_details))
                     print("Did you update the subscription info?")
+                    return
 
                 # Change <?> to ASCII before save
                 audio_file_path = audio_file_path.replace('?', '&#63;')
