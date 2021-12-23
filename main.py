@@ -325,6 +325,8 @@ async def on_message(message: discord.Message):
                     # Create a new directory
                     os.makedirs(audio_folder_path)
                 stream.save_to_wav_file(audio_file_path)
+            else:
+                print(f"File exist       :{text}")
 
             # Change <?> to ASCII before load
             audio_file_path = audio_file_path.replace('?', '&#63;')
@@ -335,9 +337,6 @@ async def on_message(message: discord.Message):
             while bot_voice_client.is_playing():
                 await asyncio.sleep(0.5)
             bot_voice_client.play(audio_source)
-
-            # Send discord message
-            # await message.channel.send(f"{text}")
 
 
 async def join(ctx):
