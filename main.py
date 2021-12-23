@@ -8,6 +8,8 @@ import re
 import asyncio
 import yaml
 import langid
+from hashlib import sha256
+import hashlib
 
 IOS_639_1_MAPPING_LIST = {
     "zh": "zh",
@@ -237,8 +239,9 @@ async def on_message(message: discord.Message):
             return
 
         # Replace invalid symbol
-        text = re.sub('[<>/|":*\n]', ' ', message.content[1:])
-        text = text.replace("\\", " ")
+        # text = re.sub('[<>/|":*\n]', ' ', message.content[1:])
+        # text = text.replace("\\", " ")
+        text = message.content[1:]
 
         if len(text) > 0:
             # Get user voice data
@@ -282,8 +285,11 @@ async def on_message(message: discord.Message):
 
                 print(f"Detected language: {language_code} \nVoice name       : {voice_name}")
 
+            # SHA256
+            text_sha256 = sha256(text.encode('utf-8')).hexdigest()
+
             # Create audio file path
-            audio_file_path = f"AudioFile/{voice_name}/{text}.ogg"
+            audio_file_path = f"AudioFile/{voice_name}/{text_sha256}.ogg"
             if text == "test_music":
                 audio_file_path = "AudioFile/1.m4a"
 
@@ -326,10 +332,7 @@ async def on_message(message: discord.Message):
                     os.makedirs(audio_folder_path)
                 stream.save_to_wav_file(audio_file_path)
             else:
-                print(f"File exist       :{text}")
-
-            # Change <?> to ASCII before load
-            audio_file_path = audio_file_path.replace('?', '&#63;')
+                print(f"File exist       : {text_sha256}")
 
             audio_source = discord.FFmpegOpusAudio(source=audio_file_path)
             # audio_source = discord.FFmpegPCMAudio(source=audio_file_path)
