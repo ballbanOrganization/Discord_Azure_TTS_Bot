@@ -105,8 +105,11 @@ def get_user_data_list():
     Get user data list from USER_DATA_PATH
     :return: User data list
     """
-    with open(USER_DATA_PATH, "r") as file:
-        user_data_list = json.load(file)
+    try:
+        with open(USER_DATA_PATH, "r") as file:
+            user_data_list = json.load(file)
+    except FileExistsError:
+        user_data_list = get_voice_list_from_microsoft()
     return user_data_list
 
 
