@@ -66,7 +66,7 @@ async def on_message(message: discord.Message):
         if not bot_voice_client:
             return
 
-        text = message.content[1:]
+        text = message.content[1:].strip()
 
         if len(text) > 0:
             # Get user voice data
