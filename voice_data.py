@@ -4,6 +4,7 @@ import os
 
 VOICE_LIST_DATA_PATH = "Data/voice_list_data.json"
 USER_DATA_PATH = "Data/user_data.json"
+ISO639_MAPPING_LIST = "Data/ISO639-1_mapping_list.json"
 
 
 class VoiceModel:
@@ -139,10 +140,20 @@ def get_voice_list_from_microsoft():
         print(f"Something wrong with voice_list: {voice_list}")
 
 
+def get_iso_mapping_list():
+    try:
+        with open(ISO639_MAPPING_LIST, "r") as file:
+            iso_list = json.load(file)
+    except FileExistsError:
+        return {}
+    return iso_list
+
+
 class VoiceModule:
     def __init__(self):
         self.voice_list = get_voice_list_from_local()
         self.user_data_list = get_user_data_list()
+        self.iso_mapping_list = get_iso_mapping_list()
 
     def save_user_data(self, user_model: UserModel):
         """
@@ -205,3 +216,23 @@ class VoiceModule:
                 }) > 0
             ]
         return result
+
+    def set_iso_mapping_data(self, key, voice_name, set_first=False):
+        """
+        Set iso mapping data
+        :param key: iso key
+        :param voice_name: voice name
+        :param set_first: option for choose first voice or not
+        :return:
+        """
+        search_list = self.search(voice_name)
+        if len(search_list) > 0:
+            if len(search_list) == 1 or set_first:
+                self.iso_mapping_list[key] = search_list[0].to_json()
+                with open(ISO639_MAPPING_LIST, "w") as file:
+                    json.dump(self.iso_mapping_list, file, indent=4)
+                return 'Voice set'
+            else:
+                return 'Wrong voice name'
+        else:
+            return 'Wrong voice name'
