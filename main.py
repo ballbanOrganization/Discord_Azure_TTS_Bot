@@ -7,7 +7,7 @@ from azure.cognitiveservices.speech import AudioDataStream, SpeechSynthesisOutpu
 import voice_data as vd
 import asyncio
 import yaml
-import langid
+import fasttext
 from hashlib import sha256
 
 # Load config
@@ -17,7 +17,7 @@ with open('config.yml', 'r') as yml:
 # Azure_TTS
 # Creates an instance of a speech config with specified subscription key and service region.
 AZURE_TTS_TOKEN = config['AZURE_TTS_TOKEN']
-speech_key, service_region = AZURE_TTS_TOKEN, "japaneast"
+speech_key, service_region = AZURE_TTS_TOKEN, 'japaneast'
 speech_config = speech_sdk.SpeechConfig(subscription=speech_key, region=service_region)
 
 # discord
@@ -27,6 +27,10 @@ bot = commands.Bot(command_prefix='!')
 # get voice data
 voice_module = vd.VoiceModule()
 voice_list = vd.get_voice_list_from_local()
+
+# fasttext
+PRETRAINED_MODEL_PATH = 'Data/lid.176.bin'
+fast_text_model = fasttext.load_model(PRETRAINED_MODEL_PATH)
 
 
 @bot.event
@@ -86,8 +90,8 @@ async def on_message(message: discord.Message):
                     has_language_key = False
 
             if not has_language_key or not len(text_split_list) > 1:
-                # Language identify
-                language_code = langid.classify(text)[0]
+                # Language detect
+                language_code = fast_text_model.predict(text)[0][0].split('_')[-1]
 
                 # Has auto detected user profile
                 if 'auto-' + language_code in user_voice_data.voice_setting:
@@ -148,7 +152,7 @@ async def on_message(message: discord.Message):
                     os.makedirs(audio_folder_path)
                 stream.save_to_wav_file(audio_file_path)
             else:
-                print(f"File exist       : {text}")
+                print(f"File exist       : [{text}]")
 
             audio_source = discord.FFmpegOpusAudio(source=audio_file_path)
             # audio_source = discord.FFmpegPCMAudio(source=audio_file_path)
@@ -169,8 +173,8 @@ async def on_voice_state_update(member: discord.Member, before: discord.VoiceSta
 
 
 @bot.event
-async def on_error(event):
-    print(f"Error: {event}")
+async def on_error(event_name, *args, **kwargs):
+    print(f"Error: {event_name}, {args}, {kwargs}")
 
 
 async def join(ctx):
