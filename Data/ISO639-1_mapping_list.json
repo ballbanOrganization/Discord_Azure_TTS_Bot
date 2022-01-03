@@ -273,18 +273,6 @@
         "VoiceType": "Neural",
         "Status": "GA"
     },
-    "hu": {
-        "Name": "Microsoft Server Speech Text to Speech Voice (hu-HU, NoemiNeural)",
-        "DisplayName": "Noemi",
-        "LocalName": "No\u00e9mi",
-        "ShortName": "hu-HU-NoemiNeural",
-        "Gender": "Female",
-        "Locale": "hu-HU",
-        "LocaleName": "Hungarian (Hungary)",
-        "SampleRateHertz": "24000",
-        "VoiceType": "Neural",
-        "Status": "GA"
-    },
     "id": {
         "Name": "Microsoft Server Speech Text to Speech Voice (id-ID, GadisNeural)",
         "DisplayName": "Gadis",
