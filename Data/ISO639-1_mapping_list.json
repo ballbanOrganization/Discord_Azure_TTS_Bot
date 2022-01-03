@@ -59,18 +59,6 @@
         "VoiceType": "Neural",
         "Status": "GA"
     },
-    "ca": {
-        "Name": "Microsoft Server Speech Text to Speech Voice (ca-ES, JoanaNeural)",
-        "DisplayName": "Joana",
-        "LocalName": "Joana",
-        "ShortName": "ca-ES-JoanaNeural",
-        "Gender": "Female",
-        "Locale": "ca-ES",
-        "LocaleName": "Catalan (Spain)",
-        "SampleRateHertz": "24000",
-        "VoiceType": "Neural",
-        "Status": "GA"
-    },
     "zh": {
         "Name": "Microsoft Server Speech Text to Speech Voice (zh-CN, XiaoxiaoNeural)",
         "DisplayName": "Xiaoxiao",
@@ -410,18 +398,6 @@
         "VoiceType": "Neural",
         "Status": "GA"
     },
-    "no": {
-        "Name": "Microsoft Server Speech Text to Speech Voice (nb-NO, PernilleNeural)",
-        "DisplayName": "Pernille",
-        "LocalName": "Pernille",
-        "ShortName": "nb-NO-PernilleNeural",
-        "Gender": "Female",
-        "Locale": "nb-NO",
-        "LocaleName": "Norwegian (Bokm\u00e5l, Norway)",
-        "SampleRateHertz": "24000",
-        "VoiceType": "Neural",
-        "Status": "GA"
-    },
     "fa": {
         "Name": "Microsoft Server Speech Text to Speech Voice (fa-IR, DilaraNeural)",
         "DisplayName": "Dilara",
@@ -505,18 +481,6 @@
         "Gender": "Female",
         "Locale": "sl-SI",
         "LocaleName": "Slovenian (Slovenia)",
-        "SampleRateHertz": "24000",
-        "VoiceType": "Neural",
-        "Status": "GA"
-    },
-    "so": {
-        "Name": "Microsoft Server Speech Text to Speech Voice (so-SO, UbaxNeural)",
-        "DisplayName": "Ubax",
-        "LocalName": "Ubax",
-        "ShortName": "so-SO-UbaxNeural",
-        "Gender": "Female",
-        "Locale": "so-SO",
-        "LocaleName": "Somali (Somalia)",
         "SampleRateHertz": "24000",
         "VoiceType": "Neural",
         "Status": "GA"
@@ -685,6 +649,30 @@
         "Gender": "Female",
         "Locale": "zu-ZA",
         "LocaleName": "Zulu (South Africa)",
+        "SampleRateHertz": "24000",
+        "VoiceType": "Neural",
+        "Status": "GA"
+    },
+    "tw": {
+        "Name": "Microsoft Server Speech Text to Speech Voice (zh-TW, HsiaoChenNeural)",
+        "DisplayName": "HsiaoChen",
+        "LocalName": "\u66c9\u81fb",
+        "ShortName": "zh-TW-HsiaoChenNeural",
+        "Gender": "Female",
+        "Locale": "zh-TW",
+        "LocaleName": "Chinese (Taiwanese Mandarin)",
+        "SampleRateHertz": "24000",
+        "VoiceType": "Neural",
+        "Status": "GA"
+    },
+    "hk": {
+        "Name": "Microsoft Server Speech Text to Speech Voice (zh-HK, HiuMaanNeural)",
+        "DisplayName": "HiuMaan",
+        "LocalName": "\u66c9\u66fc",
+        "ShortName": "zh-HK-HiuMaanNeural",
+        "Gender": "Female",
+        "Locale": "zh-HK",
+        "LocaleName": "Chinese (Cantonese, Traditional)",
         "SampleRateHertz": "24000",
         "VoiceType": "Neural",
         "Status": "GA"

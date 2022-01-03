@@ -66,7 +66,7 @@ async def on_message(message: discord.Message):
         if len(text) > 0:
             # Get user voice data
             user_voice_data = voice_module.get_user_data(str(message.author.id))
-            default_voice_data = voice_module.get_user_data("default")
+            # default_voice_data = voice_module.get_user_data("default")
 
             # Check language key
             text_split_list = text.split()
@@ -75,15 +75,15 @@ async def on_message(message: discord.Message):
             language = ""
             voice_name = ""
             if len(text_split_list) > 1:
-                # Has language key, user profile
+                # Has language key, has user profile
                 if text_language_key in user_voice_data.voice_setting:
                     language = user_voice_data.voice_setting[text_language_key].locale
                     voice_name = user_voice_data.voice_setting[text_language_key].short_name
                     text = " ".join(text.split()[1:])
                 # Has language key, no user profile
-                elif text_language_key in default_voice_data.voice_setting:
-                    language = default_voice_data.voice_setting[text_language_key].locale
-                    voice_name = default_voice_data.voice_setting[text_language_key].short_name
+                elif text_language_key in voice_module.iso_mapping_list:
+                    language = voice_module.iso_mapping_list[text_language_key]['Locale']
+                    voice_name = voice_module.iso_mapping_list[text_language_key]['ShortName']
                     text = " ".join(text.split()[1:])
                 # No language key
                 else:
@@ -102,10 +102,12 @@ async def on_message(message: discord.Message):
                     language = voice_module.iso_mapping_list[language_code]['Locale']
                     voice_name = voice_module.iso_mapping_list[language_code]['ShortName']
                 else:
-                    language = default_voice_data.voice_setting["default"].locale
-                    voice_name = default_voice_data.voice_setting["default"].short_name
+                    language = voice_module.iso_mapping_list['en']['Locale']
+                    voice_name = voice_module.iso_mapping_list['en']['ShortName']
 
                 print(f"Detected language: {language_code} \nVoice name       : {voice_name}")
+            else:
+                print(f"Language key     : {text_language_key} \nVoice name       : {voice_name}")
 
             # SHA256
             text_sha256 = sha256(text.encode('utf-8')).hexdigest()

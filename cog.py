@@ -18,8 +18,7 @@ class Cog(commands.Cog):
 
         string = "How to use this bot:" \
                  "\n        Type __`你好__ or __'Hello__" \
-                 "\n        Use symbol __`(text)__" \
-                 "\n        Bot will identify language automatically" \
+                 "\n        Bot will detects language automatically" \
                  + default_voice_message + \
                  "\n" \
                  "\nYou can setup your own voice setting." \
