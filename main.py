@@ -9,6 +9,7 @@ import yaml
 import fasttext
 from hashlib import sha256
 import cog
+import langid
 
 # Load config
 with open('config.yml', 'r') as yml:
@@ -28,8 +29,10 @@ voice_module = vd.VoiceModule()
 voice_list = vd.get_voice_list_from_local()
 
 # fasttext
-PRETRAINED_MODEL_PATH = 'Data/lid.176.bin'
-fast_text_model = fasttext.load_model(PRETRAINED_MODEL_PATH)
+PRETRAINED_MODEL_PATH_BIN = 'Data/lid.176.bin'
+fast_text_model_bin = fasttext.load_model(PRETRAINED_MODEL_PATH_BIN)
+PRETRAINED_MODEL_PATH_FTZ = 'Data/lid.176.ftz'
+fast_text_model_ftz = fasttext.load_model(PRETRAINED_MODEL_PATH_FTZ)
 
 
 @bot.event
@@ -91,19 +94,11 @@ async def on_message(message: discord.Message):
 
             if not has_language_key or not len(text_split_list) > 1:
                 # Language detect
-                language_code = fast_text_model.predict(text)[0][0].split('_')[-1]
+                fast_text_result = fast_text_model_bin.predict(text)
+                fast_text_result2 = fast_text_model_ftz.predict(text)
+                language_code = fast_text_result[0][0].split('_')[-1]
 
-                # Has auto detected user profile
-                if 'auto-' + language_code in user_voice_data.voice_setting:
-                    language = user_voice_data.voice_setting['auto-' + language_code].locale
-                    voice_name = user_voice_data.voice_setting['auto-' + language_code].short_name
-                # No user profile but in mapping list
-                elif language_code in voice_module.iso_mapping_list:
-                    language = voice_module.iso_mapping_list[language_code]['Locale']
-                    voice_name = voice_module.iso_mapping_list[language_code]['ShortName']
-                else:
-                    language = voice_module.iso_mapping_list['en']['Locale']
-                    voice_name = voice_module.iso_mapping_list['en']['ShortName']
+                language, voice_name = get_voice_name(user_voice_data, language_code)
 
                 print(f"Detected language: {language_code} \nVoice name       : {voice_name}")
             else:
@@ -119,31 +114,25 @@ async def on_message(message: discord.Message):
 
             # if file doesn't exist, request for it
             if not os.path.exists(audio_file_path):
-                speech_config.speech_synthesis_language = language
-                speech_config.speech_synthesis_voice_name = voice_name
-                speech_config.set_speech_synthesis_output_format(
-                    SpeechSynthesisOutputFormat["Ogg16Khz16BitMonoOpus"])
+                # get audio file
+                result = get_audio(language, voice_name, text)
 
-                speech_synthesizer = speech_sdk.SpeechSynthesizer(speech_config=speech_config)
+                if result is None:
+                    await message.channel.send('Something wrong!\nplz check log')
+                    # If audio data doesn't exist, try detect language with other module and try again
+                    print("Detect language again")
 
-                result = speech_synthesizer.speak_text_async(text).get()
+                    # language detection
+                    lang_id_result = langid.classify(text)
+                    language, voice_name = get_voice_name(user_voice_data, lang_id_result[0])
+                    print(f"Detected language: {lang_id_result[0]} \nVoice name       : {voice_name}")
 
-                # Checks result.
-                if result.reason == speech_sdk.ResultReason.SynthesizingAudioCompleted:
-                    print("Speech synthesized to speaker for text [{}]".format(text))
-                elif result.reason == speech_sdk.ResultReason.Canceled:
-                    cancellation_details = result.cancellation_details
-                    print("Speech synthesis canceled: {}".format(cancellation_details.reason))
-                    if cancellation_details.reason == speech_sdk.CancellationReason.Error:
-                        if cancellation_details.error_details:
-                            print("Error details: {}".format(cancellation_details.error_details))
-                    print("Did you update the subscription info?")
-                    return
-
-                # If audio data doesn't exist, return
-                if len(result.audio_data) < 1:
-                    print("Empty audio!")
-                    return
+                    # get audio file again
+                    result = get_audio(language, voice_name, text)
+                    if result is None:
+                        await message.channel.send('Something wrong!\nplz check log')
+                        return
+                    audio_file_path = f"AudioFile/{voice_name}/{text_sha256}.ogg"
 
                 # Save file to local
                 stream = AudioDataStream(result)
@@ -217,6 +206,49 @@ async def background_task():
                 await voice_client.disconnect()
                 print("disconnected")
         await asyncio.sleep(300)
+
+
+def get_audio(language: str, voice_name: str, text: str):
+    speech_config.speech_synthesis_language = language
+    speech_config.speech_synthesis_voice_name = voice_name
+    speech_config.set_speech_synthesis_output_format(
+        SpeechSynthesisOutputFormat["Ogg16Khz16BitMonoOpus"])
+
+    speech_synthesizer = speech_sdk.SpeechSynthesizer(speech_config=speech_config)
+
+    result = speech_synthesizer.speak_text_async(text).get()
+
+    # Checks result.
+    if len(result.audio_data) < 1:
+        print("Empty audio!")
+        return None
+    elif result.reason == speech_sdk.ResultReason.SynthesizingAudioCompleted:
+        print("Speech synthesized to speaker for text [{}]".format(text))
+    elif result.reason == speech_sdk.ResultReason.Canceled:
+        cancellation_details = result.cancellation_details
+        print("Speech synthesis canceled: {}".format(cancellation_details.reason))
+        if cancellation_details.reason == speech_sdk.CancellationReason.Error:
+            if cancellation_details.error_details:
+                print("Error details: {}".format(cancellation_details.error_details))
+        print("Did you update the subscription info?")
+        return None
+    return result
+
+
+def get_voice_name(user_voice_data, language_code):
+    # Has auto detected user profile
+    if 'auto-' + language_code in user_voice_data.voice_setting:
+        language = user_voice_data.voice_setting['auto-' + language_code].locale
+        voice_name = user_voice_data.voice_setting['auto-' + language_code].short_name
+    # No user profile but in mapping list
+    elif language_code in voice_module.iso_mapping_list:
+        language = voice_module.iso_mapping_list[language_code]['Locale']
+        voice_name = voice_module.iso_mapping_list[language_code]['ShortName']
+    else:
+        language = voice_module.iso_mapping_list['en']['Locale']
+        voice_name = voice_module.iso_mapping_list['en']['ShortName']
+    return language, voice_name
+
 
 BOT_TOKEN = config['BOT_TOKEN']
 bot.loop.create_task(background_task())
