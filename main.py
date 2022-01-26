@@ -10,6 +10,7 @@ import fasttext
 from hashlib import sha256
 import cog
 import langid
+import pandas as pd
 
 # Load config
 with open('config.yml', 'r') as yml:
@@ -33,6 +34,13 @@ PRETRAINED_MODEL_PATH_BIN = 'Data/lid.176.bin'
 fast_text_model_bin = fasttext.load_model(PRETRAINED_MODEL_PATH_BIN)
 PRETRAINED_MODEL_PATH_FTZ = 'Data/lid.176.ftz'
 fast_text_model_ftz = fasttext.load_model(PRETRAINED_MODEL_PATH_FTZ)
+
+# get dic
+DIC_TEXT_SHA256_LANGUAGE_CODE_PATH = "Data/dic_text_sha256_language_code.pickle"
+try:
+    dic_text_sha256_language_code = pd.read_pickle(DIC_TEXT_SHA256_LANGUAGE_CODE_PATH)
+except Exception:
+    dic_text_sha256_language_code = {}
 
 
 @bot.event
@@ -66,91 +74,110 @@ async def on_message(message: discord.Message):
 
         text = message.content[1:].strip()
 
-        if len(text) > 0:
-            # Get user voice data
-            user_voice_data = voice_module.get_user_data(str(message.author.id))
-            # default_voice_data = voice_module.get_user_data("default")
+        if len(text) == 0:
+            return
 
-            # Check language key
-            text_split_list = text.split()
-            text_language_key = text.split()[0]
-            has_language_key = True
-            language = ""
-            voice_name = ""
-            if len(text_split_list) > 1:
-                # Has language key, has user profile
-                if text_language_key in user_voice_data.voice_setting:
-                    language = user_voice_data.voice_setting[text_language_key].locale
-                    voice_name = user_voice_data.voice_setting[text_language_key].short_name
-                    text = " ".join(text.split()[1:])
-                # Has language key, no user profile
-                elif text_language_key in voice_module.iso_mapping_list:
-                    language = voice_module.iso_mapping_list[text_language_key]['Locale']
-                    voice_name = voice_module.iso_mapping_list[text_language_key]['ShortName']
-                    text = " ".join(text.split()[1:])
-                # No language key
-                else:
-                    has_language_key = False
+        # Get user voice data
+        user_voice_data = voice_module.get_user_data(str(message.author.id))
+        # default_voice_data = voice_module.get_user_data("default")
 
-            if not has_language_key or not len(text_split_list) > 1:
+        # Check language key
+        text_split_list = text.split()
+        text_language_key = text.split()[0]
+        has_language_key = True
+        language = ""
+        voice_name = ""
+        if len(text_split_list) > 1:
+            # Has language key, has user profile
+            if text_language_key in user_voice_data.voice_setting:
+                language = user_voice_data.voice_setting[text_language_key].locale
+                voice_name = user_voice_data.voice_setting[text_language_key].short_name
+                text = " ".join(text.split()[1:])
+            # Has language key, no user profile
+            elif text_language_key in voice_module.iso_mapping_list:
+                language = voice_module.iso_mapping_list[text_language_key]['Locale']
+                voice_name = voice_module.iso_mapping_list[text_language_key]['ShortName']
+                text = " ".join(text.split()[1:])
+            # No language key
+            else:
+                has_language_key = False
+
+        if not has_language_key or not len(text_split_list) > 1:
+            # SHA256
+            text_sha256 = sha256(text.encode('utf-8')).hexdigest()
+
+            if text_sha256 in dic_text_sha256_language_code:
+                language_code = dic_text_sha256_language_code[text_sha256]
+                print("Found language key in cache")
+            else:
                 # Language detect
                 fast_text_result = fast_text_model_bin.predict(text)
                 fast_text_result2 = fast_text_model_ftz.predict(text)
                 language_code = fast_text_result[0][0].split('_')[-1]
 
-                language, voice_name = get_voice_name(user_voice_data, language_code)
+            language, voice_name = get_voice_name(user_voice_data, language_code)
 
-                print(f"Detected language: {language_code} \nVoice name       : {voice_name}")
-            else:
-                print(f"Language key     : {text_language_key} \nVoice name       : {voice_name}")
+            print(f"Detected language: {language_code} \nVoice name       : {voice_name}")
+        else:
+            print(f"Language key     : {text_language_key} \nVoice name       : {voice_name}")
 
-            # SHA256
-            text_sha256 = sha256(text.encode('utf-8')).hexdigest()
+        # Create audio file path
+        audio_file_path = f"AudioFile/{voice_name}/{text_sha256}.ogg"
+        if text == "test_music":
+            audio_file_path = "AudioFile/1.m4a"
 
-            # Create audio file path
-            audio_file_path = f"AudioFile/{voice_name}/{text_sha256}.ogg"
-            if text == "test_music":
-                audio_file_path = "AudioFile/1.m4a"
+        # if file doesn't exist, request for it
+        if not os.path.exists(audio_file_path):
+            # get audio file
+            result = get_audio(language, voice_name, text)
 
-            # if file doesn't exist, request for it
-            if not os.path.exists(audio_file_path):
-                # get audio file
+            if result is None:
+                await message.channel.send("Something's wrong! <@318760182144434176>")
+                return
+
+            # If audio data doesn't exist, try detect language with other module and try again
+            if len(result.audio_data) < 1:
+                print(f"Empty audio!")
+                print("Detect language again")
+
+                # language detection
+                lang_id_result = langid.classify(text)
+                language, voice_name = get_voice_name(user_voice_data, lang_id_result[0])
+                print(f"Detected language: {lang_id_result[0]} \nVoice name       : {voice_name}")
+
+                # get audio file again
                 result = get_audio(language, voice_name, text)
-
                 if result is None:
-                    await message.channel.send('Something wrong!\nplz check log')
-                    # If audio data doesn't exist, try detect language with other module and try again
-                    print("Detect language again")
+                    await message.channel.send("Something's wrong! <@318760182144434176>")
+                    return
 
-                    # language detection
-                    lang_id_result = langid.classify(text)
-                    language, voice_name = get_voice_name(user_voice_data, lang_id_result[0])
-                    print(f"Detected language: {lang_id_result[0]} \nVoice name       : {voice_name}")
+                if len(result.audio_data) < 1:
+                    await message.channel.send('Failed to get audio ㅠㅠ\nplz try other text')
+                    return
 
-                    # get audio file again
-                    result = get_audio(language, voice_name, text)
-                    if result is None:
-                        await message.channel.send('Something wrong!\nplz check log')
-                        return
-                    audio_file_path = f"AudioFile/{voice_name}/{text_sha256}.ogg"
+                audio_file_path = f"AudioFile/{voice_name}/{text_sha256}.ogg"
 
-                # Save file to local
-                stream = AudioDataStream(result)
-                # Check folder path
-                audio_folder_path = os.path.dirname(audio_file_path)
-                if not os.path.exists(audio_folder_path):
-                    # Create a new directory
-                    os.makedirs(audio_folder_path)
-                stream.save_to_wav_file(audio_file_path)
-            else:
-                print(f"File exist       : [{text}]")
+                # Save sha256 and language code
+                dic_text_sha256_language_code[text_sha256] = language_code
+                pd.to_pickle(dic_text_sha256_language_code, DIC_TEXT_SHA256_LANGUAGE_CODE_PATH)
 
-            audio_source = discord.FFmpegOpusAudio(source=audio_file_path)
-            # audio_source = discord.FFmpegPCMAudio(source=audio_file_path)
+            # Save file to local
+            stream = AudioDataStream(result)
+            # Check folder path
+            audio_folder_path = os.path.dirname(audio_file_path)
+            if not os.path.exists(audio_folder_path):
+                # Create a new directory
+                os.makedirs(audio_folder_path)
+            stream.save_to_wav_file(audio_file_path)
+        else:
+            print(f"File exist       : [{text}]")
 
-            while bot_voice_client.is_playing():
-                await asyncio.sleep(0.5)
-            bot_voice_client.play(audio_source)
+        audio_source = discord.FFmpegOpusAudio(source=audio_file_path)
+        # audio_source = discord.FFmpegPCMAudio(source=audio_file_path)
+
+        while bot_voice_client.is_playing():
+            await asyncio.sleep(0.5)
+        bot_voice_client.play(audio_source)
 
 
 @bot.event
@@ -219,10 +246,7 @@ def get_audio(language: str, voice_name: str, text: str):
     result = speech_synthesizer.speak_text_async(text).get()
 
     # Checks result.
-    if len(result.audio_data) < 1:
-        print("Empty audio!")
-        return None
-    elif result.reason == speech_sdk.ResultReason.SynthesizingAudioCompleted:
+    if result.reason == speech_sdk.ResultReason.SynthesizingAudioCompleted:
         print("Speech synthesized to speaker for text [{}]".format(text))
     elif result.reason == speech_sdk.ResultReason.Canceled:
         cancellation_details = result.cancellation_details
