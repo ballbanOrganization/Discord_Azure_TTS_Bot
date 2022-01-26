@@ -102,10 +102,10 @@ async def on_message(message: discord.Message):
             else:
                 has_language_key = False
 
-        if not has_language_key or not len(text_split_list) > 1:
-            # SHA256
-            text_sha256 = sha256(text.encode('utf-8')).hexdigest()
+        # SHA256
+        text_sha256 = sha256(text.encode('utf-8')).hexdigest()
 
+        if not has_language_key or not len(text_split_list) > 1:
             if text_sha256 in dic_text_sha256_language_code:
                 language_code = dic_text_sha256_language_code[text_sha256]
                 print("Found language key in cache")
