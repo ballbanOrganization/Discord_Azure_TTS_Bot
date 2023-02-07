@@ -1,3 +1,5 @@
+import re
+
 import voice_data as vd
 import discord
 from discord.ext import commands
@@ -11,6 +13,8 @@ from hashlib import sha256
 import cog
 import langid
 import pandas as pd
+import openai
+import re
 
 # Load config
 with open('config.yml', 'r') as yml:
@@ -21,6 +25,7 @@ with open('config.yml', 'r') as yml:
 AZURE_TTS_TOKEN = config['AZURE_TTS_TOKEN']
 speech_key, service_region = AZURE_TTS_TOKEN, 'japaneast'
 speech_config = speech_sdk.SpeechConfig(subscription=speech_key, region=service_region)
+openai.api_key = config['OPENAI_API_KEY']
 
 # discord
 bot = commands.Bot(command_prefix='!')
@@ -152,7 +157,7 @@ async def on_message(message: discord.Message):
                     return
 
                 if len(result.audio_data) < 1:
-                    await message.channel.send('Failed to get audio ㅠㅠ\nplz try other text')
+                    await message.channel.send(f'Failed to get audio ㅠㅠ\nOriginal message : {text}')
                     return
 
                 audio_file_path = f"AudioFile/{voice_name}/{text_sha256}.ogg"
@@ -178,7 +183,34 @@ async def on_message(message: discord.Message):
         while bot_voice_client.is_playing():
             await asyncio.sleep(0.5)
         bot_voice_client.play(audio_source)
+    elif message.content.startswith('/chat '):
+        split = message.content[6:].strip().split('-')
+        prompt = split[0].strip()
+        temperature = 0
+        max_tokens = 1000
 
+        for arg in split[1:]:
+            match = re.search(r'^(temperature|t) (0|1|0.\d\d?) ?$', arg, re.IGNORECASE)
+            if match:
+                temperature = float(match.group(2))
+                continue
+
+            match = re.search(r'^(max_token|m_t) ([1-9]\d*) ?$', arg, re.IGNORECASE)
+            if match:
+                max_tokens = int(match.group(2))
+
+        bot_message = await message.reply("Getting response...")
+
+        try:
+            response = openai.Completion.create(model="text-davinci-003",
+                                                prompt=prompt,
+                                                temperature=temperature,
+                                                max_tokens=max_tokens)
+
+            # await message.edit(content=response)
+            await bot_message.edit(content=response['choices'][0].text)
+        except Exception as e:
+            await bot_message.edit(content=f"error:{e}")
 
 @bot.event
 async def on_message_edit(before, after):
