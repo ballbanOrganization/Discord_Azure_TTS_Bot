@@ -16,7 +16,7 @@ class Cog(commands.Cog):
             if len(default_voice_message) > 1000:
                 default_voice_message = default_voice_message[:1000]
 
-        string = "How to use this bot:" \
+        string = "How to use this client:" \
                  "\n        Type __`你好__ or __'Hello__" \
                  "\n        Bot will detects language automatically" \
                  + default_voice_message + \
@@ -40,7 +40,7 @@ class Cog(commands.Cog):
     async def command(self, ctx: commands.context.Context):
         string = "\nCommand list:" \
                  "\n`!leave`" \
-                 "\nLet bot leave the voice channel" \
+                 "\nLet client leave the voice channel" \
                  "\n" \
                  "\n`!update_voice_list`" \
                  "\nUpdate voice list from microsoft official website" \
@@ -67,7 +67,7 @@ class Cog(commands.Cog):
     @commands.command()
     async def leave(self, ctx: commands.context.Context):
         """
-        Let bot leave the voice channel
+        Let client leave the voice channel
         :param ctx: commands.context.Context
         :return: nothing
         """
