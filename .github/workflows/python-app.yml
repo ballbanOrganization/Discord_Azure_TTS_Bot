@@ -38,7 +38,7 @@ jobs:
         BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       run: |
-        pwsh -Command {
+        powershell -Command {
           $Env:Path += ";$env:USERPROFILE\PycharmProjects\Discord_Azure_TTS_Bot\venv39\Scripts"
           Start-Process python -ArgumentList "$env:USERPROFILE\PycharmProjects\Discord_Azure_TTS_Bot\main.py"
         }
