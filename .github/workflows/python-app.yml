@@ -21,6 +21,7 @@ jobs:
     - uses: actions/checkout@v3
     - name: Install dependencies
       run: |
+        source ..\..\Users\Administrator\PycharmProjects\Discord_Azure_TTS_Bot\venv39\Scripts\activate
         python -m pip install --upgrade pip
         pip install flake8
         pip install -r requirements.txt
@@ -31,4 +32,6 @@ jobs:
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Run application
-      run: python main.py
+      run: |
+        source ..\..\Users\Administrator\PycharmProjects\Discord_Azure_TTS_Bot\venv39\Scripts\activate
+        python main.py
