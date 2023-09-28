@@ -39,4 +39,4 @@ jobs:
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       run: |
         . (Join-Path $env:USERPROFILE "PycharmProjects/Discord_Azure_TTS_Bot/venv39/Scripts/activate.ps1")
-        python main.py
+        python main.py &
