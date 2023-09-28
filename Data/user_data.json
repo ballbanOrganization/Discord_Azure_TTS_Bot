@@ -1,0 +1,344 @@
+{
+    "default": {
+        "UserId": "default",
+        "VoiceSetting": {
+            "default": {
+                "Name": "Microsoft Server Speech Text to Speech Voice (en-US, JennyNeural)",
+                "DisplayName": "Jenny",
+                "LocalName": "Jenny",
+                "ShortName": "en-US-JennyNeural",
+                "Gender": "Female",
+                "Locale": "en-US",
+                "LocaleName": "English (United States)",
+                "SampleRateHertz": "24000",
+                "VoiceType": "Neural",
+                "Status": "GA",
+                "StyleList": [
+                    "assistant",
+                    "chat",
+                    "customerservice",
+                    "newscast"
+                ]
+            }
+        }
+    },
+    "186204332411060234": {
+        "UserId": "186204332411060234",
+        "UserName": "gaffe",
+        "VoiceSetting": {
+            "canto": {
+                "Name": "Microsoft Server Speech Text to Speech Voice (zh-HK, WanLungNeural)",
+                "DisplayName": "WanLung",
+                "LocalName": "\u96f2\u9f8d",
+                "ShortName": "zh-HK-WanLungNeural",
+                "Gender": "Male",
+                "Locale": "zh-HK",
+                "LocaleName": "Chinese (Cantonese, Traditional)",
+                "SampleRateHertz": "24000",
+                "VoiceType": "Neural",
+                "Status": "GA"
+            },
+            "jp": {
+                "Name": "Microsoft Server Speech Text to Speech Voice (ja-JP, KeitaNeural)",
+                "DisplayName": "Keita",
+                "LocalName": "\u572d\u592a",
+                "ShortName": "ja-JP-KeitaNeural",
+                "Gender": "Male",
+                "Locale": "ja-JP",
+                "LocaleName": "Japanese (Japan)",
+                "SampleRateHertz": "24000",
+                "VoiceType": "Neural",
+                "Status": "GA"
+            },
+            "ar": {
+                "Name": "Microsoft Server Speech Text to Speech Voice (ar-SA, HamedNeural)",
+                "DisplayName": "Hamed",
+                "LocalName": "\u062d\u0627\u0645\u062f",
+                "ShortName": "ar-SA-HamedNeural",
+                "Gender": "Male",
+                "Locale": "ar-SA",
+                "LocaleName": "Arabic (Saudi Arabia)",
+                "SampleRateHertz": "24000",
+                "VoiceType": "Neural",
+                "Status": "GA"
+            },
+            "it": {
+                "Name": "Microsoft Server Speech Text to Speech Voice (it-IT, DiegoNeural)",
+                "DisplayName": "Diego",
+                "LocalName": "Diego",
+                "ShortName": "it-IT-DiegoNeural",
+                "Gender": "Male",
+                "Locale": "it-IT",
+                "LocaleName": "Italian (Italy)",
+                "SampleRateHertz": "24000",
+                "VoiceType": "Neural",
+                "Status": "GA"
+            },
+            "auto-it": {
+                "Name": "Microsoft Server Speech Text to Speech Voice (it-IT, DiegoNeural)",
+                "DisplayName": "Diego",
+                "LocalName": "Diego",
+                "ShortName": "it-IT-DiegoNeural",
+                "Gender": "Male",
+                "Locale": "it-IT",
+                "LocaleName": "Italian (Italy)",
+                "SampleRateHertz": "24000",
+                "VoiceType": "Neural",
+                "Status": "GA"
+            },
+            "de": {
+                "Name": "Microsoft Server Speech Text to Speech Voice (de-CH, JanNeural)",
+                "DisplayName": "Jan",
+                "LocalName": "Jan",
+                "ShortName": "de-CH-JanNeural",
+                "Gender": "Male",
+                "Locale": "de-CH",
+                "LocaleName": "German (Switzerland)",
+                "SampleRateHertz": "24000",
+                "VoiceType": "Neural",
+                "Status": "GA"
+            },
+            "asdfasdf": {
+                "Name": "Microsoft Server Speech Text to Speech Voice (zh-TW, YunJheNeural)",
+                "DisplayName": "YunJhe",
+                "LocalName": "\u96f2\u54f2",
+                "ShortName": "zh-TW-YunJheNeural",
+                "Gender": "Male",
+                "Locale": "zh-TW",
+                "LocaleName": "Chinese (Taiwanese Mandarin)",
+                "SampleRateHertz": "24000",
+                "VoiceType": "Neural",
+                "Status": "GA"
+            }
+        }
+    },
+    "221166290235031552": {
+        "UserId": "221166290235031552",
+        "UserName": "bumh",
+        "VoiceSetting": {
+            "jp": {
+                "Name": "Microsoft Server Speech Text to Speech Voice (ja-JP, NanamiNeural)",
+                "DisplayName": "Nanami",
+                "LocalName": "\u4e03\u6d77",
+                "ShortName": "ja-JP-NanamiNeural",
+                "Gender": "Female",
+                "Locale": "ja-JP",
+                "LocaleName": "Japanese (Japan)",
+                "SampleRateHertz": "24000",
+                "VoiceType": "Neural",
+                "Status": "GA",
+                "StyleList": [
+                    "chat",
+                    "customerservice",
+                    "cheerful"
+                ]
+            }
+        }
+    },
+    "432148393146712074": {
+        "UserId": "432148393146712074",
+        "UserName": "Whitete",
+        "VoiceSetting": {
+            "jp": {
+                "Name": "Microsoft Server Speech Text to Speech Voice (ja-JP, NanamiNeural)",
+                "DisplayName": "Nanami",
+                "LocalName": "\u4e03\u6d77",
+                "ShortName": "ja-JP-NanamiNeural",
+                "Gender": "Female",
+                "Locale": "ja-JP",
+                "LocaleName": "Japanese (Japan)",
+                "SampleRateHertz": "24000",
+                "VoiceType": "Neural",
+                "Status": "GA",
+                "StyleList": [
+                    "chat",
+                    "customerservice",
+                    "cheerful"
+                ]
+            },
+            "auto-jp": {
+                "Name": "Microsoft Server Speech Text to Speech Voice (ja-JP, NanamiNeural)",
+                "DisplayName": "Nanami",
+                "LocalName": "\u4e03\u6d77",
+                "ShortName": "ja-JP-NanamiNeural",
+                "Gender": "Female",
+                "Locale": "ja-JP",
+                "LocaleName": "Japanese (Japan)",
+                "SampleRateHertz": "24000",
+                "VoiceType": "Neural",
+                "Status": "GA",
+                "StyleList": [
+                    "chat",
+                    "customerservice",
+                    "cheerful"
+                ]
+            },
+            "auto-ja": {
+                "Name": "Microsoft Server Speech Text to Speech Voice (ja-JP, NanamiNeural)",
+                "DisplayName": "Nanami",
+                "LocalName": "\u4e03\u6d77",
+                "ShortName": "ja-JP-NanamiNeural",
+                "Gender": "Female",
+                "Locale": "ja-JP",
+                "LocaleName": "Japanese (Japan)",
+                "SampleRateHertz": "24000",
+                "VoiceType": "Neural",
+                "Status": "GA",
+                "StyleList": [
+                    "chat",
+                    "customerservice",
+                    "cheerful"
+                ]
+            }
+        }
+    },
+    "569468587098505216": {
+        "UserId": "569468587098505216",
+        "UserName": "\u30b8\u30e7\u30fc\u3061\u3093",
+        "VoiceSetting": {
+            "jp": {
+                "Name": "Microsoft Server Speech Text to Speech Voice (ja-JP, NanamiNeural)",
+                "DisplayName": "Nanami",
+                "LocalName": "\u4e03\u6d77",
+                "ShortName": "ja-JP-NanamiNeural",
+                "Gender": "Female",
+                "Locale": "ja-JP",
+                "LocaleName": "Japanese (Japan)",
+                "SampleRateHertz": "24000",
+                "VoiceType": "Neural",
+                "Status": "GA",
+                "StyleList": [
+                    "chat",
+                    "customerservice",
+                    "cheerful"
+                ]
+            }
+        }
+    },
+    "394101454669086722": {
+        "UserId": "394101454669086722",
+        "UserName": "Mituhage",
+        "VoiceSetting": {
+            "jp": {
+                "Name": "Microsoft Server Speech Text to Speech Voice (ja-JP, NanamiNeural)",
+                "DisplayName": "Nanami",
+                "LocalName": "\u4e03\u6d77",
+                "ShortName": "ja-JP-NanamiNeural",
+                "Gender": "Female",
+                "Locale": "ja-JP",
+                "LocaleName": "Japanese (Japan)",
+                "SampleRateHertz": "24000",
+                "VoiceType": "Neural",
+                "Status": "GA",
+                "StyleList": [
+                    "chat",
+                    "customerservice",
+                    "cheerful"
+                ]
+            },
+            "ar": {
+                "Name": "Microsoft Server Speech Text to Speech Voice (ar-SA, HamedNeural)",
+                "DisplayName": "Hamed",
+                "LocalName": "\u062d\u0627\u0645\u062f",
+                "ShortName": "ar-SA-HamedNeural",
+                "Gender": "Male",
+                "Locale": "ar-SA",
+                "LocaleName": "Arabic (Saudi Arabia)",
+                "SampleRateHertz": "24000",
+                "VoiceType": "Neural",
+                "Status": "GA"
+            },
+            "auto-ar": {
+                "Name": "Microsoft Server Speech Text to Speech Voice (ar-SA, HamedNeural)",
+                "DisplayName": "Hamed",
+                "LocalName": "\u062d\u0627\u0645\u062f",
+                "ShortName": "ar-SA-HamedNeural",
+                "Gender": "Male",
+                "Locale": "ar-SA",
+                "LocaleName": "Arabic (Saudi Arabia)",
+                "SampleRateHertz": "24000",
+                "VoiceType": "Neural",
+                "Status": "GA"
+            },
+            "it": {
+                "Name": "Microsoft Server Speech Text to Speech Voice (it-IT, DiegoNeural)",
+                "DisplayName": "Diego",
+                "LocalName": "Diego",
+                "ShortName": "it-IT-DiegoNeural",
+                "Gender": "Male",
+                "Locale": "it-IT",
+                "LocaleName": "Italian (Italy)",
+                "SampleRateHertz": "24000",
+                "VoiceType": "Neural",
+                "Status": "GA"
+            }
+        }
+    },
+    "619740891426455561": {
+        "UserId": "619740891426455561",
+        "UserName": "\u3061\u3073",
+        "VoiceSetting": {
+            "auto-ja": {
+                "Name": "Microsoft Server Speech Text to Speech Voice (ja-JP, NanamiNeural)",
+                "DisplayName": "Nanami",
+                "LocalName": "\u4e03\u6d77",
+                "ShortName": "ja-JP-NanamiNeural",
+                "Gender": "Female",
+                "Locale": "ja-JP",
+                "LocaleName": "Japanese (Japan)",
+                "SampleRateHertz": "24000",
+                "VoiceType": "Neural",
+                "Status": "GA",
+                "StyleList": [
+                    "chat",
+                    "customerservice",
+                    "cheerful"
+                ]
+            }
+        }
+    },
+    "293518892557664256": {
+        "UserId": "293518892557664256",
+        "UserName": "\u9280\uff20silver",
+        "VoiceSetting": {
+            "auto-ja": {
+                "Name": "Microsoft Server Speech Text to Speech Voice (ja-JP, NanamiNeural)",
+                "DisplayName": "Nanami",
+                "LocalName": "\u4e03\u6d77",
+                "ShortName": "ja-JP-NanamiNeural",
+                "Gender": "Female",
+                "Locale": "ja-JP",
+                "LocaleName": "Japanese (Japan)",
+                "SampleRateHertz": "24000",
+                "VoiceType": "Neural",
+                "Status": "GA",
+                "StyleList": [
+                    "chat",
+                    "customerservice",
+                    "cheerful"
+                ]
+            }
+        }
+    },
+    "318760182144434176": {
+        "UserId": "318760182144434176",
+        "UserName": "ballban",
+        "VoiceSetting": {
+            "auto-en": {
+                "Name": "Microsoft Server Speech Text to Speech Voice (en-US, GuyNeural)",
+                "DisplayName": "Guy",
+                "LocalName": "Guy",
+                "ShortName": "en-US-GuyNeural",
+                "Gender": "Male",
+                "Locale": "en-US",
+                "LocaleName": "English (United States)",
+                "SampleRateHertz": "24000",
+                "VoiceType": "Neural",
+                "Status": "GA",
+                "StyleList": [
+                    "newscast"
+                ]
+            }
+        }
+    }
+}

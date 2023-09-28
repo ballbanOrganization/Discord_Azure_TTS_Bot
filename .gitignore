@@ -1,0 +1,12 @@
+*.ogg
+*.exe
+*.spec
+
+/.idea
+
+/AudioFile/
+/build/
+/Data/user_data_backup.json
+/Data/ISO639-1_mapping_list_backup.json
+/Data/lid.176.bin
+/Data/langdetect_augmented.ftz
