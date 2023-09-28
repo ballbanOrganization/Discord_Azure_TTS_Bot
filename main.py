@@ -1,12 +1,10 @@
+import random
 import voice_data as vd
 import discord
 from discord import app_commands
 from discord.ext import commands, tasks
 import os
-import azure.cognitiveservices.speech as speech_sdk
-from azure.cognitiveservices.speech import AudioDataStream, SpeechSynthesisOutputFormat
 import asyncio
-import yaml
 import fasttext
 from hashlib import sha256
 import cog
@@ -14,17 +12,13 @@ from langidentification import LangIdentification
 import pandas as pd
 import re
 from chatGPT import *
-
-# Load config
-with open('config.yml', 'r') as yml:
-    config = yaml.safe_load(yml)
+from tts import *
 
 # Azure_TTS
-# Creates an instance of a speech config with specified subscription key and service region.
-AZURE_TTS_TOKEN = config['AZURE_TTS_TOKEN']
-speech_key, service_region = AZURE_TTS_TOKEN, 'japaneast'
-speech_config = speech_sdk.SpeechConfig(subscription=speech_key, region=service_region)
-openai.api_key = config['OPENAI_API_KEY']
+speech_config = azure_init(os.environ['AZURE_TTS_TOKEN'])
+
+# OpenAi
+openai_init(os.environ['OPENAI_API_KEY'])
 
 # get voice data
 voice_module = vd.VoiceModule()
@@ -46,7 +40,7 @@ try:
 except Exception:
     dic_text_sha256_language_code = {}
 
-# discord
+# Discord
 intents = discord.Intents.all()
 client = discord.Client(command_prefix='!', intents=intents)
 tree = app_commands.CommandTree(client)
@@ -57,6 +51,7 @@ async def on_ready():
     print(f"We have logged in as {client.user}")
     # await client.add_cog(cog.Cog(client, voice_module))
     # await client.change_presence(activity=discord.Game(name="!atb_help"))
+    background_task.start()
     try:
         synced = await tree.sync()
         print(f'Synced {len(synced)} command(s)')
@@ -65,10 +60,15 @@ async def on_ready():
     print(f"Ready!")
 
 
-@tree.command(name='say')
-@app_commands.describe(thing_to_say='what should I say?')
-async def say(interaction: discord.Interaction, thing_to_say: str):
-    await interaction.response.send_message(f'{interaction.user.name} said:{thing_to_say}')
+@tree.command(name='miel_bot')
+@app_commands.describe(question='What would you want to ask Miel?')
+async def miel_bot(interaction: discord.Interaction, question: str):
+    #await interaction.response.defer()
+    #message = await interaction.followup.send(f'{interaction.user.name} said:{thing_to_say}')
+    #await message.reply('test')
+    reply_list = ['草', '哈哈哈哈哈哈', '是的', '他妈的']
+    await interaction.response.send_message(f'Q: {question}\n'
+                                            f'Miel: {random.choice(reply_list)}')
 
 
 @tree.command(name='chat')
@@ -89,8 +89,21 @@ async def chat(interaction: discord.Interaction,
         response = await request_chatgpt_v1(prompt, 'text-davinci-003', temperature, max_tokens, show_all_response)
     else:
         response = await request_chatgpt_v2(prompt, 'gpt-3.5-turbo', show_all_response)
-    await interaction.followup.send(f'Q: {prompt}\nA: {response}')
-    # await interaction.response.send_message(response)
+    max_len = 1950
+    if len(response) < max_len:
+        await interaction.followup.send(f'Q: {prompt}\nA: {response}')
+    else:
+        message = await interaction.followup.send(f'Q: {prompt}\nA: {response[:max_len-len(prompt)]}')
+        for i in range(max_len - len(prompt), len(response), max_len):
+            message = await message.reply(response[i:i+max_len])
+
+
+# @tree.command(name='t')
+# @app_commands.describe(text='Anything you want to say.',
+#                        language='language code. Default: auto')
+# async def t(text: str, language: str = ''):
+#     pass
+
 
 
 @client.event
@@ -165,7 +178,7 @@ async def on_message(message: discord.Message):
     # if file doesn't exist, request for it
     if not os.path.exists(audio_file_path):
         # get audio file
-        result = get_audio(language, voice_name, text)
+        result = get_audio(language, voice_name, text, speech_config)
 
         if result is None:
             await message.channel.send("Something's wrong! <@318760182144434176>")
@@ -272,30 +285,6 @@ async def background_task():
         await asyncio.sleep(300)
 
 
-def get_audio(language: str, voice_name: str, text: str):
-    speech_config.speech_synthesis_language = language
-    speech_config.speech_synthesis_voice_name = voice_name
-    speech_config.set_speech_synthesis_output_format(
-        SpeechSynthesisOutputFormat["Ogg16Khz16BitMonoOpus"])
-
-    speech_synthesizer = speech_sdk.SpeechSynthesizer(speech_config=speech_config)
-
-    result = speech_synthesizer.speak_text_async(text).get()
-
-    # Checks result.
-    if result.reason == speech_sdk.ResultReason.SynthesizingAudioCompleted:
-        print("Speech synthesized to speaker for text [{}]".format(text))
-    elif result.reason == speech_sdk.ResultReason.Canceled:
-        cancellation_details = result.cancellation_details
-        print("Speech synthesis canceled: {}".format(cancellation_details.reason))
-        if cancellation_details.reason == speech_sdk.CancellationReason.Error:
-            if cancellation_details.error_details:
-                print("Error details: {}".format(cancellation_details.error_details))
-        print("Did you update the subscription info?")
-        return None
-    return result
-
-
 def get_voice_name(user_voice_data, language_code):
     # Has auto detected user profile
     if 'auto-' + language_code in user_voice_data.voice_setting:
@@ -311,5 +300,5 @@ def get_voice_name(user_voice_data, language_code):
     return language, voice_name
 
 
-BOT_TOKEN = config['BOT_TOKEN']
+BOT_TOKEN = os.environ['BOT_TOKEN']
 client.run(BOT_TOKEN)

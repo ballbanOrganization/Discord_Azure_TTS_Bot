@@ -1,6 +1,10 @@
 import openai
 
 
+def openai_init(key):
+    openai.api_key = key
+
+
 async def request_chatgpt_v1(prompt: str,
                              model: str = "text-davinci-003",
                              temperature: float = 0.5,
@@ -8,7 +12,7 @@ async def request_chatgpt_v1(prompt: str,
                              show_all_response: bool = False
                              ) -> str:
     try:
-        print(f'chatGPT log: prompt:{prompt}'
+        print(f'chatGPT log: prompt:{prompt}\n'
               f'model:{model} temperature:{temperature} max_tokens:{max_tokens} show_all_response:{show_all_response}')
         response = openai.Completion.create(model=model,
                                             prompt=prompt,
@@ -24,7 +28,7 @@ async def request_chatgpt_v2(prompt: str,
                              model: str = "gpt-3.5-turbo",
                              show_all_response: bool = False,):
     try:
-        print(f'chatGPT log: prompt:{prompt}'
+        print(f'chatGPT log: prompt:{prompt}\n'
               f'model:{model} show_all_response:{show_all_response}')
         response = openai.ChatCompletion.create(
             model=model,
@@ -32,6 +36,9 @@ async def request_chatgpt_v2(prompt: str,
                 {'role': 'user', 'content': prompt}
             ]
         )
+        if str(response).startswith('Error communicating'):
+            return await request_chatgpt_v1(prompt, model, show_all_response)
+
         return str(response) if show_all_response else response['choices'][0]['message']['content']
     except Exception as e:
         return f"error:{e}"
