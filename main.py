@@ -25,13 +25,13 @@ voice_module = vd.VoiceModule()
 voice_list = vd.get_voice_list_from_local()
 
 # fasttext
-PRETRAINED_MODEL_PATH_BIN = 'Data/lid.176.bin'
-fast_text_model_bin = fasttext.load_model(PRETRAINED_MODEL_PATH_BIN)
+# PRETRAINED_MODEL_PATH_BIN = 'Data/lid.176.bin'
+# fast_text_model_bin = fasttext.load_model(PRETRAINED_MODEL_PATH_BIN)
 PRETRAINED_MODEL_PATH_FTZ = 'Data/lid.176.ftz'
 fast_text_model_ftz = fasttext.load_model(PRETRAINED_MODEL_PATH_FTZ)
 
 # langidentification
-langid_model = LangIdentification(model_type='augmented')
+# langid_model = LangIdentification(model_type='augmented')
 
 # get dic
 DIC_TEXT_SHA256_LANGUAGE_CODE_PATH = "Data/dic_text_sha256_language_code.pickle"
@@ -98,14 +98,6 @@ async def chat(interaction: discord.Interaction,
             message = await message.reply(response[i:i+max_len])
 
 
-# @tree.command(name='t')
-# @app_commands.describe(text='Anything you want to say.',
-#                        language='language code. Default: auto')
-# async def t(text: str, language: str = ''):
-#     pass
-
-
-
 @client.event
 async def on_message(message: discord.Message):
     # ignore client message
@@ -116,14 +108,12 @@ async def on_message(message: discord.Message):
     if not re.search(r'^(`|｀)[^`｀]+$', message.content):
         return
 
-    # Synthesizes the received text to speech.
-    # The synthesized speech is expected to be heard on the speaker with this line executed.
-
     # Check client voice channel
     bot_voice_client = await join(message)
     if not bot_voice_client:
         return
 
+    # remove [`]
     text = message.content[1:].strip()
 
     # Get user voice data
@@ -160,8 +150,8 @@ async def on_message(message: discord.Message):
             print("Found language key in cache")
         else:
             # Language detect
-            fast_text_result = fast_text_model_bin.predict(text)
-            # fast_text_result2 = fast_text_model_ftz.predict(text)
+            # fast_text_result = fast_text_model_bin.predict(text)
+            fast_text_result = fast_text_model_ftz.predict(text)
             language_code = fast_text_result[0][0].split('_')[-1]
 
         language, voice_name = get_voice_name(user_voice_data, language_code)
@@ -186,6 +176,7 @@ async def on_message(message: discord.Message):
 
         # If audio data doesn't exist, try detect language with other module and try again
         if len(result.audio_data) < 1:
+            return
             print(f"Empty audio!")
             print("Detect language again")
 
