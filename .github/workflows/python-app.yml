@@ -13,10 +13,11 @@ jobs:
   build:
 
     runs-on: self-hosted
-    environment: production
     steps:
     - uses: actions/checkout@v3
-      
+      with:
+        clean: false
+        
     - name: Install dependencies
       run: |
         . (Join-Path $env:USERPROFILE "PycharmProjects/Discord_Azure_TTS_Bot/venv39/Scripts/activate.ps1")
@@ -33,12 +34,5 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
         
     - name: Run application
-      env:
-        AZURE_TTS_TOKEN: ${{ secrets.AZURE_TTS_TOKEN }}
-        BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
-        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       run: |
-        powershell -Command {
-          $Env:Path += ";$env:USERPROFILE\PycharmProjects\Discord_Azure_TTS_Bot\venv39\Scripts"
-          Start-Process python -ArgumentList "$env:USERPROFILE\PycharmProjects\Discord_Azure_TTS_Bot\main.py"
-        }
+        nssm restart Discord_Azure_TTS_Bot
