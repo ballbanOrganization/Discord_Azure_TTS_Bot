@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   build:
-
+    environment: production
     runs-on: self-hosted
     steps:
     - uses: actions/checkout@v3
@@ -27,5 +27,5 @@ jobs:
 
     - name: Run application
       run: |
-        nssm set Discord_Azure_TTS_Bot AppEnvironmentExtra AZURE_TTS_TOKEN=${{production.AZURE_TTS_TOKEN}} BOT_TOKEN=${{production.BOT_TOKEN}} OPENAI_API_KEY=${{production.OPENAI_API_KEY}}
+        nssm set Discord_Azure_TTS_Bot AppEnvironmentExtra AZURE_TTS_TOKEN=${{secrets.AZURE_TTS_TOKEN}} BOT_TOKEN=${{secrets.BOT_TOKEN}} OPENAI_API_KEY=${{secrets.OPENAI_API_KEY}}
         nssm restart Discord_Azure_TTS_Bot
